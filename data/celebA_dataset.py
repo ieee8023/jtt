@@ -29,6 +29,12 @@ class CelebADataset(ConfounderDataset):
         self.augment_data = augment_data
         self.model_type = model_type
 
+        df1 = pd.read_csv(os.path.join(self.root_dir, "data", "list_eval_partition.csv"))
+        df2 = pd.read_csv(os.path.join(self.root_dir, "data", "list_attr_celeba.csv"))
+        merged_df = pd.merge(df1, df2)
+        merged_df["split"] = merged_df["partition"]
+        merged_df.to_csv(os.path.join(self.root_dir, "data", metadata_csv_name), header=True, index=False)
+        
         # Read in attributes
         self.attrs_df = pd.read_csv(
             os.path.join(self.root_dir, "data", metadata_csv_name))
@@ -54,7 +60,7 @@ class CelebADataset(ConfounderDataset):
         self.n_confounders = len(self.confounder_idx)
         confounders = self.attrs_df[:, self.confounder_idx]
         self.confounder_array = np.matmul(
-            confounders.astype(np.int),
+            confounders.astype(int),
             np.power(2, np.arange(len(self.confounder_idx))))
 
         # Map to groups
